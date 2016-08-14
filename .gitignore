@@ -1,0 +1,5 @@
+*.sln
+*.VC*
+*.vc*
+Debug
+.vs
