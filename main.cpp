@@ -102,41 +102,20 @@ char mazegrid[mazefloors][7][7] = {
 };
 char mazemap[mazefloors][7][7];
 
-
-bool playerdead = false;
-bool bossdead = false;
-bool stickym = true;
-bool playmusic = true;
+//non-user controlled bools
+bool playerdead = false, bossdead = false, stickym = true, playmusic = true;
 int msdelay = 2500;
-double cash = 0;
-double cprice = 0.50;
+rpgtype proost, enemy;
 
-bool statbar = true;
-bool map = false;
-bool hasmazemap = false;
-bool hasrooster = false;
-rpgtype proost;
-rpgtype enemy;
+//alchemy
+int bottles = 0, hpots = 0;
 
-int bedmulti = 1;
-int boatq = 1;
-int dfloor = 0;
-
-int bottles = 0;
-int hpots = 0;
-
-int hens = 1;
-int totalchickens = 0;
-int chickens = 0;
-int cookedchicken = 0;
-int controlchickens = 0;
-int sheep = 0;
+//initializing stat values
+bool hascauldron = false, statbar = false, map = false, hasmazemap = false, hasrooster = false;
+double cash = 0, cprice = 0.50, sheepconception = 0;
+int hens = 1, sheep = 0, totalchickens = 0, chickens = 0, cookedchicken = 0, controlchickens = 0, hlvl = 0, cookinglvl = 1,bedmulti = 1, boatq = 1, dfloor = 0;
 int craftmats[2] = { 0,0 };
 int totalcraftmats[2] = { 0,0 };
-double sheepconception = 0;
-
-int hlvl = 0;
-int cookinglvl = 1;
 
 clock_t timer;
 
@@ -162,9 +141,7 @@ int getinput(int max, int min) {
 				cin.sync();
 			}
 		}
-		else {
-			intchoice = _getch() - '0';
-		}
+		else intchoice = _getch() - '0';
 		
 		if (intchoice == max + 1) {
 			cout << "Enter Cheat: ";
@@ -195,9 +172,7 @@ int getinput(int max, int min) {
 		if (max > 9) {
 			cin >> intchoice;
 		}
-		else {
-			intchoice = _getch() - '0';
-		}
+		else intchoice = _getch() - '0';
 	} // end while
 	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	return intchoice;
@@ -230,7 +205,6 @@ if (statbar) {
 void checkcoop()
 {
 	clear();
-
 	int chickencoop = ((((clock() - timer) / (int)CLOCKS_PER_SEC) / 2) * hens * bedmulti) - (controlchickens *hens * bedmulti);
 	controlchickens = ((clock() - 9) / (int)CLOCKS_PER_SEC) / 2;
 
@@ -690,10 +664,10 @@ void blackmarket() {
 
 		options.clear();
 		if (!hasmazemap) options.push_back("Buy Map $100");
-		options.push_back("Stone $10");
+		options.push_back("Stone $100");
 		options.push_back("5 Bottles $50");
 
-		if (proost.def > 0) options.push_back("Defense Flask $5000");
+		if (proost.def < 1) options.push_back("Defense Flask $5000");
 		if (!statbar) options.push_back("Stat Bar $1000");
 
 		options.push_back("Leave Black Market");
@@ -711,9 +685,9 @@ void blackmarket() {
 				hasmazemap = true;
 			}
 		}
-		else if (choice == ("Stone $10")) {
-			if (cash >= 10) {
-				cash -= 10;
+		else if (choice == ("Stone $100")) {
+			if (cash >= 100) {
+				cash -= 100;
 				craftmats[1]++;
 			}
 		}
@@ -765,32 +739,19 @@ void librarymaze() {
 			dir = 0;
 			PlaySoundBite(L"maze.wav");
 
-			if (cpos[0] != 0 && mazegrid[dfloor][cpos[1]][cpos[0] - 1] != '1')
-				dir |= 1 << 0; //left 
-
-			if (cpos[1] != 0 && mazegrid[dfloor][cpos[1] - 1][cpos[0]] != '1')
-				dir |= 1 << 1; //forwards
-
-			if (cpos[0] != 6 && mazegrid[dfloor][cpos[1]][cpos[0] + 1] != '1')
-				dir |= 1 << 2; //right
+			if (cpos[0] != 0 && mazegrid[dfloor][cpos[1]][cpos[0] - 1] != '1') dir |= 1 << 0; //left 
+			if (cpos[1] != 0 && mazegrid[dfloor][cpos[1] - 1][cpos[0]] != '1') dir |= 1 << 1; //forwards
+			if (cpos[0] != 6 && mazegrid[dfloor][cpos[1]][cpos[0] + 1] != '1') dir |= 1 << 2; //right
 
 			if (treasure) correction = 8;
 			else if (jumpscare) correction = 10;
 			else { correction = dir; }
 
-			if (cpos[1] != 6 && mazegrid[dfloor][cpos[1] + 1][cpos[0]] != '1')
-				dir |= 1 << 3; //backwards
+			if (cpos[1] != 6 && mazegrid[dfloor][cpos[1] + 1][cpos[0]] != '1') dir |= 1 << 3; //backwards
 
 			for (int i = 0; i < 20; i++) {
 				mazeandmap[i] = mazeops[correction][i];
 			}			//add map here ***
-
-			/*
-				bool isleft = (dir >> 0) & 1;
-				bool isup = (dir >> 1) & 1;
-				bool isright = (dir >> 2) & 1;
-				bool isdown = (dir >> 3) & 1;
-			*/
 
 			if (hasmazemap) {
 				if (cpos[0] != 0 && mazemap[dfloor][cpos[1]][cpos[0] - 1] == '?') 
@@ -828,12 +789,6 @@ void librarymaze() {
 				jumpscare = false;
 			}
 
-
-			/*
-			cout << buttons(directions);
-			int intchoice = getinput(directions.size(), 0);
-			string choice = directions.at(intchoice - 1); 
-			*/
 			//put special encounters here
 
 			char choice = mazemove(dir, special);
@@ -851,14 +806,6 @@ void librarymaze() {
 			}
 			FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 			sleep(250);
-
-			/*
-			if (choice == "Forwards") cpos[1] -= 1;
-			else if (choice == "Left") cpos[0] -= 1;
-			else if (choice == "Right") cpos[0] += 1;
-			else if (choice == "Backwards") cpos[1] += 1;
-			else if (choice == "Leave Through Exit") inmaze = false;
-			*/ //old options
 
 			special = "";
 			encounter = mazegrid[dfloor][cpos[1]][cpos[0]];
@@ -1018,10 +965,10 @@ void oldmcdonald() {
 		prarrtostr(farmer, 29);
 		options.clear();
 		if (!hasrooster) options.push_back("Buy Rooster $15");
-		double feedprice = 100 * pow(2.5, (cprice / 0.5) - 1);
+		double feedprice = 100 * pow(3, (cprice / 0.5) - 1);
+		double sheepprice = 500 * pow(10, sheep - 1);
 		options.push_back("Improved Feed $" + dbltostr(feedprice));
 
-		double sheepprice;
 		if (sheep == 0) {
 			sheepprice = 500 * pow(2.0, sheep);
 			options.push_back("Sheep $" + dbltostr(sheepprice));
@@ -1065,7 +1012,6 @@ void oldmcdonald() {
 				PlaySoundBite(L"patched up.wav");
 			}
 		}
-
 		else if (choice == "View Map")  shopping = false;
 	}
 
@@ -1079,7 +1025,6 @@ void forest() {
 		cout << "Without a rooster, the forest is much too dangerous!" << endl;
 		sleep(msdelay);
 	}
-
 	else {
 		bool fighting = true;
 
@@ -1120,21 +1065,11 @@ void adventure() {
 		cin >> input;
 		cin.ignore();
 		transform(input.begin(), input.end(), input.begin(), ::toupper);
-		if (input == "FOREST" || input == "WOODS") {
-			forest();
-		}
-		else if (input == "HOUSE" || input == "HUT") {
-			librarymaze();
-		}
-		else if (input == "BARN" || input == "FARM") {
-			oldmcdonald();
-		}
-		else if (input == "BOAT" || input == "SAILBOAT") {
-			boat();
-		}
-		else if (input == "EXIT" || input == "LEAVE" || input == "HOME") {
-			adventuring = false;
-		}
+		if (input == "FOREST" || input == "WOODS") forest();
+		else if (input == "HOUSE" || input == "HUT") librarymaze();
+		else if (input == "BARN" || input == "FARM") oldmcdonald();
+		else if (input == "BOAT" || input == "SAILBOAT") boat();
+		else if (input == "EXIT" || input == "LEAVE" || input == "HOME") adventuring = false;
 		else if (input == "HELP") {
 			cout << "Your options are:\n1. Forest\n2. House\n3. Boat\n4. Farm\n5. Home\n6. Help" << endl;
 			goto help;
@@ -1181,7 +1116,7 @@ bool checkcraft(int arr[3][3]) {
 	string stoneboots = "000202202";
 	string stoneglove = "000222020";
 
-
+	string cauldron = "000202222";
 	string bed = "000111202";
 
 	if (cbuild == woolcp) proost.set_chest(wcp);
@@ -1196,6 +1131,7 @@ bool checkcraft(int arr[3][3]) {
 	else if (cbuild == stoneboots) proost.set_boots(sboots);
 	else if (cbuild == stoneglove) proost.set_weapon(swep);
 
+	else if (cbuild == cauldron) hascauldron = true;
 	else if (cbuild == bed) bedmulti = 2;
 
 	else success = false;
@@ -1271,7 +1207,9 @@ void craft() { //craft tools
 					temploss[i] = 0;
 				}
 				for (int i = 0; i < 9; i++) { intproduct[i / 3][i % 3] = 0; }
+				cout << "Craft Successful!";
 				crafted = false;
+				sleep(250);
 			}
 		}
 		else {
@@ -1290,14 +1228,12 @@ void craft() { //craft tools
 					*pointer = intchoice;
 					temploss[intchoice - 1]++;
 				}
-
-
 			}
 		}
 	} //end while
 }
 
-void alchemy() { //upgrade tools
+void alchemy() { //craft potions
 
 
 
@@ -1306,7 +1242,7 @@ void alchemy() { //upgrade tools
 void checksheep() {
 	clear();
 
-	int woolgain = ((((clock() - timer) / (int)CLOCKS_PER_SEC)) - sheepconception) / 60 - totalcraftmats[0];
+	int woolgain = (((((clock() - timer) / (int)CLOCKS_PER_SEC)) - sheepconception) / 60) * 2 - totalcraftmats[0];
 
 	craftmats[0] += woolgain;
 	totalcraftmats[0] += woolgain;

@@ -1,0 +1,18 @@
+﻿  main.cpp
+c:\dev\cppvsworkspace\cr\chicken rancher\ascii.h(17): warning C4129: '|': unrecognized character escape sequence
+c:\dev\cppvsworkspace\cr\chicken rancher\ascii.h(310): warning C4129: ';': unrecognized character escape sequence
+main.cpp(353): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(394): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(495): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(637): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(705): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1036): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1262): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1309): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+main.cpp(1360): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1401): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  Generating code
+  All 927 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Chicken Rancher.vcxproj -> C:\DEV\cppVSworkspace\cr\x64\Release\Chicken Rancher.exe
+  Chicken Rancher.vcxproj -> C:\DEV\cppVSworkspace\cr\x64\Release\Chicken Rancher.pdb (Full PDB)
