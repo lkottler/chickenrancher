@@ -19,31 +19,24 @@ rpgtype::rpgtype() {
 		currenthp = maxhp;
 		atk = 1;
 		def = 0;
-		armor cp;
-		chestplate = cp;
-		armor pt;
-		pants = pt;
-		armor ht;
-		helmet = ht;
-		armor bt;
-		boots = bt;
+		armor chestplate = armor();
+		armor pants = armor();
+		armor helmet = armor();
+		armor boots = armor();
 	}
 
-rpgtype::rpgtype(string name, string icon[12], int maxhp, int currenthp, int atk, int def) {
+rpgtype::rpgtype(string name, string icon[12], int maxhp, int currenthp, int atk, int def, int loot) {
 		for (int i = 0; i < 11; i++) { this->icon[i] = icon[i]; }
 		this->name = name;
-		this->maxhp = maxhp;
+		this->maxhp = maxhp; 
 		this->currenthp = currenthp;
 		this->atk = atk;
 		this->def = def;
-		armor cp;
-		chestplate = cp;
-		armor pt;
-		pants = pt;
-		armor ht;
-		helmet = ht;
-		armor bt;
-		boots = bt;
+		this->loot = loot;
+		armor chestplate = armor();
+		armor pants = armor();
+		armor helmet = armor();
+		armor boots = armor();
 	}
 	//arrays
 	string rpgtype::get_icon(int i) { return icon[i]; }

@@ -9,10 +9,11 @@ public:
 	int maxhp, currenthp, atk, def;
 	armor chestplate, helmet, boots, pants;
 	weapon weap;
+	int loot;
 
 	//constructors
 	rpgtype();
-	rpgtype(string name, string icon[12], int maxhp, int currenthp, int atk, int def);
+	rpgtype(string name, string icon[12], int maxhp, int currenthp, int atk, int def, int loot);
 
 	string get_icon(int i);
 	void set_icon(string n[12]);

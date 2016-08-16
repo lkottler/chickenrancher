@@ -22,66 +22,17 @@
 #include <AtlBase.h>
 #include <array>
 #include <conio.h>
+#include <cstring>
+#include <cstdint>
 #pragma comment( lib, "winmm" ) 
 
-#define sndPlaySoundW
-using namespace std;
-
-/*
-string readfile(){
-string STRING;
-ifstream infile;
-infile.open("file.txt");
-while (!infile.eof) // To get you all the lines.
-{
-getline(infile, STRING); // Saves the line in STRING.
-cout << STRING; // Prints our STRING.
-}
-infile.close();
-}
-*/
-
-rpgtype boss[] = { rpgtype("Massive Bat", bigbat, 18, 18, 3, 1) };
-rpgtype easyenemies[] = { rpgtype("Bird",ebird, 3, 3, 1, 0), rpgtype("Injured Bird",injuredbird, 3, 2, 2, 0), rpgtype("Bat",bat, 2, 2, 2, 0), rpgtype("Bleeding Bat",bleedingbat, 2, 1, 3, 0) };
-rpgtype dungeonpool[] = { rpgtype("Bat", bat, 2, 2, 2, 0), rpgtype("Skeleton",ebird, 5, 5, 3, 0),  rpgtype("Vampire", ebird, 10, 10, 4, 1), rpgtype("Golem", ebird, 3, 3, 8, 5) };
-
-WCHAR combined[MAX_PATH];
-
-bool sound = false;
-wstring folder = L"soundbites\\";
-void PlaySoundBite(LPTSTR file) {
-	if (sound) {
-		PlaySound((folder + file).c_str(), NULL, SND_ASYNC);
-	}
-}
-void PlayLoop(LPTSTR file) {
-	if (sound) {
-		PlaySound((folder + file).c_str(), NULL, SND_LOOP | SND_ASYNC);
-	}
-}
-void cutmusic() {
-	PlaySound(NULL, 0, 0);
-}
-
-/*
-void PlaySoundBite(LPCWSTR file) {
-	file = (wstring(L"open \"") + wstring(file) + wstring(L"\" type mpegvideo alias mp3")).c_str();
-	mciSendString(file, NULL, 0, NULL); //opens file
-	mciSendString(L"play mp3", NULL, 0, NULL);
-}
-void PlayLoop(LPCWSTR file) {
-	file = (wstring(L"open ") + wstring(file) + wstring(L" type mpegvideo alias mp3")).c_str();
-	mciSendString(file, NULL, 0, NULL); //opens file
-	mciSendString(L"play mp3 repeat", NULL, 0, NULL);
-}
-void cutmusic() {
-	mciSendString(L"stop mp3", NULL, 0, NULL);
-}
-*/
+//Crafting Materials
 
 const int CiconL = sizeof(chickenicon) / sizeof(chickenicon[0]);
 
 const int mazefloors = 3;
+
+char mazemap[mazefloors][7][7];
 
 char mazegrid[mazefloors][7][7] = {
 						  { { 'c','1','0','0','m','0','0' },
@@ -100,7 +51,6 @@ char mazegrid[mazefloors][7][7] = {
 							{ '1','0','1','1','1','1','j' },
 							{ 'm','0','0','0','0','1','u' } },
 };
-char mazemap[mazefloors][7][7];
 
 //non-user controlled bools
 bool playerdead = false, bossdead = false, stickym = true, playmusic = true;
@@ -113,11 +63,42 @@ int bottles = 0, hpots = 0;
 //initializing stat values
 bool hascauldron = false, statbar = false, map = false, hasmazemap = false, hasrooster = false;
 double cash = 0, cprice = 0.50, sheepconception = 0;
-int hens = 1, sheep = 0, totalchickens = 0, chickens = 0, cookedchicken = 0, controlchickens = 0, hlvl = 0, cookinglvl = 1,bedmulti = 1, boatq = 1, dfloor = 0;
+int hens = 1, sheep = 0, totalchickens = 0, chickens = 0, cookedchicken = 0, controlchickens = 0, hlvl = 0, cookinglvl = 1, bedmulti = 1, boatq = 1, dfloor = 0;
 int craftmats[2] = { 0,0 };
 int totalcraftmats[2] = { 0,0 };
 
+string strloot[5] = { "Feather", "Bat Wing", "Bone", "Blood Shard", "Clay" };
+int alchmats[5] = { 0,0,0,0,0 };
+int bossloot[mazefloors] = { 0,0,0 };
+
+// string strloot[5] = { "Feather", "Bat Wing", "Bone", "Blood Shard", "Clay" };
+
+rpgtype boss[] = { rpgtype("Massive Bat", bigbat, 18, 18, 3, 1, 1) };
+rpgtype easyenemies[] = { rpgtype("Bird",ebird, 3, 3, 1, 0, 0), rpgtype("Injured Bird",injuredbird, 3, 2, 2, 0, 0), rpgtype("Bat",bat, 2, 2, 2, 0, 1), rpgtype("Bleeding Bat",bleedingbat, 2, 1, 3, 0, 1) };
+rpgtype dungeonpool[] = { rpgtype("Bat", bat, 2, 2, 2, 0, 1), rpgtype("Skeleton",ebird, 5, 5, 3, 0, 2),  rpgtype("Vampire", ebird, 10, 10, 4, 1, 3), rpgtype("Golem", ebird, 3, 3, 8, 5, 4) };
+
 clock_t timer;
+
+#define sndPlaySoundW
+using namespace std;
+
+WCHAR combined[MAX_PATH];
+
+bool sound = false;
+wstring folder = L"soundbites\\";
+void PlaySoundBite(LPTSTR file) {
+	if (sound) {
+		PlaySound((folder + file).c_str(), NULL, SND_ASYNC);
+	}
+}
+void PlayLoop(LPTSTR file) {
+	if (sound) {
+		PlaySound((folder + file).c_str(), NULL, SND_LOOP | SND_ASYNC);
+	}
+}
+void cutmusic() {
+	PlaySound(NULL, 0, 0);
+}
 
 //Prints the array.
 void prarrtostr(string arr[], int length) { for (int i = 0; i < length; i++) { cout << arr[i] + "\n"; } }
@@ -396,10 +377,10 @@ bool fight(string background[12]) {
 		sleep(800);
 		death();
 		cash = 0;
-
 	}
-
 	else if (!flee) {
+		cout << "Gained 1: " + strloot[enemy.loot] << endl;
+		alchmats[enemy.loot]++;
 		win = true;
 	}
 	return win;
@@ -824,6 +805,7 @@ void librarymaze() {
 				createnemy(boss[0]); //if multiple levels make sure to fix
 				win = fight(bat);
 				if (win) {
+					bossloot[dfloor] += 1;
 					bossdead = true;
 					cash += 10000;
 					mazegrid[dfloor][cpos[1]][cpos[0]] = 'd';
@@ -1014,8 +996,6 @@ void oldmcdonald() {
 		}
 		else if (choice == "View Map")  shopping = false;
 	}
-
-
 }
 
 void forest() {
@@ -1234,15 +1214,26 @@ void craft() { //craft tools
 }
 
 void alchemy() { //craft potions
+	int intchoice;
+	string choice = "";
+	vector<string> options;
+	string graphic[22];
+
+	memcpy(graphic, wizard, sizeof(wizard));
+
+	if (hascauldron) {
+		for (int i = 5; i < 22; i++) graphic[i] += "      " + cauldron[i];
 
 
 
+	}
+	else{ }
 }
 
 void checksheep() {
 	clear();
 
-	int woolgain = (((((clock() - timer) / (int)CLOCKS_PER_SEC)) - sheepconception) / 60) * 2 - totalcraftmats[0];
+	int woolgain = (((((clock() - timer) / (int)CLOCKS_PER_SEC)) - sheepconception) / 60) * sheep - totalcraftmats[0];
 
 	craftmats[0] += woolgain;
 	totalcraftmats[0] += woolgain;
