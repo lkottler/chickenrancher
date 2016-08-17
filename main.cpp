@@ -28,8 +28,6 @@
 
 //Crafting Materials
 
-const int CiconL = sizeof(chickenicon) / sizeof(chickenicon[0]);
-
 const int mazefloors = 3;
 
 char mazemap[mazefloors][7][7];
@@ -61,9 +59,13 @@ rpgtype proost, enemy;
 int bottles = 0, hpots = 0;
 
 //initializing stat values
-bool hascauldron = false, statbar = false, map = false, hasmazemap = false, hasrooster = false;
+bool craftedarmor[4][5] = { {false,false,false,false,false },{ false,false,false,false,false },{ false,false,true,false,false },{ false,false,false,false,false } };
+bool hascauldron = false, statbar = false, map = false, hasmazemap = false, hasrooster = false, housekey = true, hastome = false;
 double cash = 0, cprice = 0.50, sheepconception = 0;
 int hens = 1, sheep = 0, totalchickens = 0, chickens = 0, cookedchicken = 0, controlchickens = 0, hlvl = 0, cookinglvl = 1, bedmulti = 1, boatq = 1, dfloor = 0;
+
+int craftunlocks = 1;
+string craftmatsname[2] = { "Wool","Stone" };
 int craftmats[2] = { 0,0 };
 int totalcraftmats[2] = { 0,0 };
 
@@ -73,6 +75,11 @@ int bossloot[mazefloors] = { 0,0,0 };
 
 // string strloot[5] = { "Feather", "Bat Wing", "Bone", "Blood Shard", "Clay" };
 
+armor equipable[4][4] = { { armor("Woolen Hat", 3, 0), armor("Woolen Chestplate", 5, 1), armor("Woolen Leggings", 5, 2), armor("Woolen Boots", 2, 3) }, 
+				          { armor("Stone Helmet", 5, 0), armor("Stone Chestplate", 10, 1), armor("Stone Leggings", 8, 2), armor("Stone Boots", 5, 3) },
+						  { armor("Iron Helmet", 8, 0), armor("Iron Chestplate", 15, 1), armor("Iron Leggings", 13, 2), armor("Iron Boots", 8, 3) },
+						  { armor("Diamond Helmet", 5, 0), armor("Diamond Chestplate", 20, 1), armor("Diamond Leggings", 18, 2), armor("Diamond Boots", 8, 3)}};
+weapon wequipable[4] = { weapon("Woolen Gloves", 1), weapon("Stone Fist", 3), weapon("Iron Gauntlet", 5), weapon("Diamond Gloves", 10), };
 rpgtype boss[] = { rpgtype("Massive Bat", bigbat, 18, 18, 3, 1, 1) };
 rpgtype easyenemies[] = { rpgtype("Bird",ebird, 3, 3, 1, 0, 0), rpgtype("Injured Bird",injuredbird, 3, 2, 2, 0, 0), rpgtype("Bat",bat, 2, 2, 2, 0, 1), rpgtype("Bleeding Bat",bleedingbat, 2, 1, 3, 0, 1) };
 rpgtype dungeonpool[] = { rpgtype("Bat", bat, 2, 2, 2, 0, 1), rpgtype("Skeleton",ebird, 5, 5, 3, 0, 2),  rpgtype("Vampire", ebird, 10, 10, 4, 1, 3), rpgtype("Golem", ebird, 3, 3, 8, 5, 4) };
@@ -86,6 +93,7 @@ WCHAR combined[MAX_PATH];
 
 bool sound = false;
 wstring folder = L"soundbites\\";
+
 void PlaySoundBite(LPTSTR file) {
 	if (sound) {
 		PlaySound((folder + file).c_str(), NULL, SND_ASYNC);
@@ -189,12 +197,14 @@ void checkcoop()
 	int chickencoop = ((((clock() - timer) / (int)CLOCKS_PER_SEC) / 2) * hens * bedmulti) - (controlchickens *hens * bedmulti);
 	controlchickens = ((clock() - 9) / (int)CLOCKS_PER_SEC) / 2;
 
+
+	const int CiconL = sizeof(chickenicon) / sizeof(chickenicon[0]);
 	chickens += chickencoop;
 	totalchickens += chickencoop;
 	string coop[CiconL];
 	for (int i = 0; i < CiconL; i++) { coop[i] = chickenicon[i]; } //Copy the chickenicon array.
 
-	coop[3] += ("    You have a total of: " + to_string(hens) + " hens ");
+	coop[3] += ("    You have a total of: " + to_string(hens) + " hen(s) ");
 	coop[4] += ("    You found: " + to_string(chickencoop) + " chickens in your coop!");
 	coop[5] += ("    You have found a total of: " + to_string(totalchickens) + " chickens");
 	coop[6] += ("    You currently have: " + to_string(chickens) + " chickens");
@@ -308,8 +318,9 @@ void changeoptions() {
 		int intput = getinput(options.size(), 0);
 		string choice = options.at(intput - 1);
 		if (choice == "Change Delay") {
-			cout << "Enter the millisecond delay you would like between actions: ";
-			msdelay = getinput(5000, 0);
+			cout << "Enter the millisecond delay you would like between actions: (max 10000) ";
+			msdelay = getinput(10000, 0);
+			cout << "Delay is now: " + to_string(msdelay) + " milliseconds" << endl;
 		}
 		else if (choice == "Toggle Music") {
 			playmusic = (playmusic == true) ? false : true;
@@ -432,17 +443,18 @@ void store() {
 		double henprice = 5.0 * pow(2.0, hens - 1);
 		string strhenprice = dbltostr(henprice);
 
-		double manualprice = 50.0 * pow(3.0, cookinglvl - 1);
+		double manualprice = 20.0 * pow(3.0, cookinglvl - 1);
 		string strmanualprice = dbltostr(manualprice);
 
 		double houseprice = 2500.0 * pow(6.0, hlvl);
 		string strhouseprice = dbltostr(houseprice);
 
 		options.clear();
-		options.push_back("Buy Hen $" + strhenprice);
+		options.push_back("Hen $" + strhenprice);
 		options.push_back("Cooking Manual $" + strmanualprice);
-		if (cash >= 75 && !map) options.push_back("Buy Map $100");
+		if (cash >= 75 && !map) options.push_back("Map $15");
 		if (hasrooster && hlvl < 2) options.push_back("Upgrade House $" + strhouseprice);
+		if (hascauldron) options.push_back("Witch's Tome $10000");
 
 		options.push_back("Leave Shop");
 		cout << buttons(options);
@@ -450,7 +462,7 @@ void store() {
 		int intchoice = getinput(options.size(), 0);
 		string choice = options.at(intchoice - 1);
 
-		if (choice == ("Buy Hen $" + strhenprice)) {
+		if (choice == ("Hen $" + strhenprice)) {
 			if (cash < henprice) {
 				PlaySoundBite(L"bargain.wav");
 			}
@@ -470,11 +482,18 @@ void store() {
 				cash -= manualprice;
 			}
 		}
-		else if (choice == "Buy Map $100") {
-			if (cash < 100) { PlaySoundBite(L"bargain.wav"); }
+		else if (choice == "Map $15") {
+			if (cash < 100)  PlaySoundBite(L"bargain.wav"); 
 			else {
 				cash -= 100;
 				map = true;
+			}
+		}
+		else if (choice == "Witch's Tome $10000") {
+			if (cash < 10000)  PlaySoundBite(L"bargain.wav"); 
+			else {
+				cash -= 10000;
+				hastome = true;
 			}
 		}
 		else if (choice == "Upgrade House $" + strhouseprice) {
@@ -505,6 +524,7 @@ void store() {
 		if (sound) {
 			PlaySoundBite(L"killed you.wav");
 			sleep(3500);
+			playerdead = false;
 		}
 	}
 }
@@ -530,84 +550,111 @@ void cookchicken() {
 	sleep(msdelay);
 }
 
-char mazemove(int dir, string special) {
-	string arrows[19]; //40 char each element
-	int i;
+char createarrows(int dir, string special) {
 	string spaces = "                                         ";
-	bool isleft = (dir >> 0) & 1;
-	bool isup = (dir >> 1) & 1;
-	bool isright = (dir >> 2) & 1;
-	bool isdown = (dir >> 3) & 1;
-	if (isleft) {
-		arrows[7] += "        .          ";
-		arrows[8] += "      .;;..........     ";
-		arrows[9] += "    .;;;;::::A:::::     ";
-	    arrows[10]+= "     ':;;::::::::::     ";
-	    arrows[11]+= "       ':          ";
+	int i;
+	string arr[19];
+	if ((dir >> 0) & 1){
+		arr[7] += "        .          ";
+		arr[8] += "      .;;..........     ";
+		arr[9] += "    .;;;;::::A:::::     ";
+		arr[10]+= "     ':;;::::::::::     ";
+		arr[11]+= "       ':          ";
 	}
 	else { //creates ghost arrow
-		arrows[7] += string(19, ' ');
-		arrows[11] += string(19, ' ');
-		for (i = 8; i < 11; i++) {arrows[i] += string(24, ' ');}
+		arr[7] += string(19, ' ');
+		arr[11] += string(19, ' ');
+		for (i = 8; i < 11; i++) { arr[i] += string(24, ' '); }
 	}
-	if (isup) {
-		arrows[0] += "                     .                  ";
-		arrows[1] += "                   .:;:.                ";
-		arrows[2] += "                 .:;;;;;:.              ";
-		arrows[3] += "                   ;;;;;                ";
-		arrows[4] += "                   ;;;;;                ";
-		arrows[5] += "                   ;;W;;                ";
-		arrows[6] += "                   ;;;;;                ";
-		arrows[7] += ";;;;;";
+	if ((dir >> 1) & 1) {
+		arr[0] += "                     .                  ";
+		arr[1] += "                   .:;:.                ";
+		arr[2] += "                 .:;;;;;:.              ";
+		arr[3] += "                   ;;;;;                ";
+		arr[4] += "                   ;;;;;                ";
+		arr[5] += "                   ;;W;;                ";
+		arr[6] += "                   ;;;;;                ";
+		arr[7] += ";;;;;";
 	}
 	else { //ghost arrow
-		arrows[7] += string(5, ' ');
-		for (i = 0; i < 7; i++) {arrows[i] += string(40, ' ');}
+		arr[7] += string(5, ' ');
+		for (i = 0; i < 7; i++) { arr[i] += string(40, ' '); }
 	}
-	if (isdown) {
-		arrows[11] += ";;;;;";
-		arrows[12] += "                   ;;;;;                ";
-		arrows[13] += "                   ;;S;;                ";
-		arrows[14] += "                   ;;;;;                ";
-		arrows[15] += "                   ;;;;;                ";
-		arrows[16] += "                 ..;;;;;..              ";
-		arrows[17] += "                  ':::::'               ";
-		arrows[18] += "                    ':`                 ";
-	}
-	else {
-		arrows[11] += string(5, ' ');
-		for (i = 12; i < 19; i++) {arrows[i] += string(40, ' ');}
-	}
-	if (isright) {
-		arrows[7] += "           .    ";
-		arrows[8] += "...........;;.  ";
-		arrows[9] += ":::::D:::::;;;;.";
-		arrows[10]+= ":::::::::::;;:' ";
-		arrows[11]+= "           :'   ";
+	if ((dir >> 3) & 1) {
+		arr[11] += ";;;;;";
+		arr[12] += "                   ;;;;;                ";
+		arr[13] += "                   ;;S;;                ";
+		arr[14] += "                   ;;;;;                ";
+		arr[15] += "                   ;;;;;                ";
+		arr[16] += "                 ..;;;;;..              ";
+		arr[17] += "                  ':::::'               ";
+		arr[18] += "                    ':`                 ";
 	}
 	else {
-		for (i = 7; i < 12; i++) {arrows[i] += string(16, ' ');}
+		arr[11] += string(5, ' ');
+		for (i = 12; i < 19; i++) { arr[i] += string(40, ' '); }
 	}
-	
+	if ((dir >> 2) & 1) {
+		arr[7] += "           .    ";
+		arr[8] += "...........;;.  ";
+		arr[9] += ":::::D:::::;;;;.";
+		arr[10] += ":::::::::::;;:' ";
+		arr[11] += "           :'   ";
+	}
+	else {
+		for (i = 7; i < 12; i++) { arr[i] += string(16, ' '); }
+	}
 	int speclen = special.size();
 	bool opexist = (speclen > 0);
 	if (opexist) {
-		arrows[7] += "    Press R:";
-		arrows[8] += "    " + string(speclen, ',');
-		arrows[9] += "   |" + special + "|";
-		arrows[10]+= "    " + string(speclen, '\'');
+		arr[7] += "    Press R:";
+		arr[8] += "    " + string(speclen, ',');
+		arr[9] += "   |" + special + "|";
+		arr[10] += "    " + string(speclen, '\'');
 	}
 	//add special
-
-	prarrtostr(arrows, 19);
+	prarrtostr(arr, 19);
 	while (1) {
-		if (GetAsyncKeyState('W') & 0x8000 && isup) return 'W';
-		if (GetAsyncKeyState('A') & 0x8000 && isleft) return 'A';
-		if (GetAsyncKeyState('D') & 0x8000 && isright) return 'D';
-		if (GetAsyncKeyState('S') & 0x8000 && isdown) return 'S';
+		if (GetAsyncKeyState('W') & 0x8000 && (dir >> 1) & 1) return 'W';
+		if (GetAsyncKeyState('A') & 0x8000 && (dir >> 0) & 1) return 'A';
+		if (GetAsyncKeyState('D') & 0x8000 && (dir >> 2) & 1) return 'D';
+		if (GetAsyncKeyState('S') & 0x8000 && (dir >> 3) & 1) return 'S';
 		if (GetAsyncKeyState('R') & 0x8000 && opexist) return 'R';
 	}
 }
+
+void movement(string board[], int yelem, int pos[2]) {
+	int xelem = board[0].size();
+	int dir, i;
+	string special;
+	char choice, temp;
+	string spaces = "                                         ";
+
+	while (1) {
+		clear();
+		dir = 0;
+		special = "";
+		if (pos[1] != 0 && (board[pos[1]].at(pos[0] - 1) == ' ' || board[pos[1]].at(pos[0] - 1) == 'R')) dir |= 1 << 0; //l
+		if (pos[0] != 0 && (board[pos[1] - 1].at(pos[0]) == ' ' || board[pos[1] - 1].at(pos[0]) == 'R')) dir |= 1 << 1; //u
+		if (pos[1] != (xelem - 1) && (board[pos[1]].at(pos[0] + 1) == ' ' || board[pos[1]].at(pos[0] + 1) == 'R')) dir |= 1 << 2; //r
+		if (pos[0] != (yelem - 1) && (board[pos[1] + 1].at(pos[0]) == ' ' || board[pos[1] + 1].at(pos[0]) == 'R')) dir |= 1 << 3; //d
+		if (board[pos[1]].at(pos[0]) == 'R') special = "Interact";
+
+		temp = board[pos[1]].at(pos[0]);
+		board[pos[1]].at(pos[0]) = 'o';
+		prarrtostr(board, yelem);
+		board[pos[1]].at(pos[0]) = temp;
+
+		choice = createarrows(dir, special);
+		if (choice == 'W') pos[1] -= 1;
+		else if (choice == 'A') pos[0] -= 1;
+		else if (choice == 'S') pos[1] += 1;
+		else if (choice == 'D') pos[0] += 1;
+		else if (choice == 'R') break;
+	}
+	
+}
+
 
 string strmazemap(int index, int dfloor, int x, int y) {
 	string returner = "";
@@ -629,6 +676,7 @@ void blackmarket() {
 	bool shopping = true;
 	vector<string> options;
 	PlaySoundBite(L"what are you.wav");
+	if (craftunlocks < 2) craftunlocks = 2;
 	while (shopping) {
 		string shopkeep[39];
 		for (int i = 0; i < 39; i++) { shopkeep[i] = cell[i]; } //Copy the house array.
@@ -772,7 +820,7 @@ void librarymaze() {
 
 			//put special encounters here
 
-			char choice = mazemove(dir, special);
+			char choice = createarrows(dir, special);
 
 			if (choice == 'W') cpos[1] -= 1;
 			else if (choice == 'A') cpos[0] -= 1;
@@ -806,6 +854,7 @@ void librarymaze() {
 				win = fight(bat);
 				if (win) {
 					bossloot[dfloor] += 1;
+					housekey = true;
 					bossdead = true;
 					cash += 10000;
 					mazegrid[dfloor][cpos[1]][cpos[0]] = 'd';
@@ -1065,56 +1114,32 @@ void adventure() {
 }
 
 bool checkcraft(int arr[3][3]) {
-	bool success = true;
-	armor wcp = armor("Woolen Chestplate", 5);
-	armor whelm = armor("Woolen Hat", 3);
-	armor wboots = armor("Woolen Boots", 2);
-	armor wlegs = armor("Woolen Leggings", 5);
-	weapon wwep = weapon("Woolen Gloves", 1);
-
-	armor scp = armor("Stone Chestplate", 10);
-	armor shelm = armor("Stone Hat", 5);
-	armor sboots = armor("Stone Boots", 4);
-	armor slegs = armor("Stone Leggings", 8);
-	weapon swep = weapon("Stone Gloves", 2);
+	bool success = false;
 
 	string cbuild;
 
-	for (int i = 0; i < 9; i++) {
-		cbuild += to_string(arr[i / 3][i % 3]);
-	}
-
-	string woolcp =     "101111111";
-	string woolhelm =   "111101000";
-	string woollegs =   "111101101";
-	string woolboots =  "000101101";
-	string woolglove =  "000111010";
-
-	string stonecp =    "202222222";
-	string stonehelm =  "222202000";
-	string stonelegs =  "222202202";
-	string stoneboots = "000202202";
-	string stoneglove = "000222020";
+	for (int i = 0; i < 9; i++) cbuild += to_string(arr[i / 3][i % 3]);
+	//helm, cp, leg, boot, wep
+	string armstr[4][5] = { { "111101000", "101111111", "111101101", "000101101", "000111010" }, { "222202000","202222222","222202202","000202202","000222020"} };
 
 	string cauldron = "000202222";
 	string bed = "000111202";
 
-	if (cbuild == woolcp) proost.set_chest(wcp);
-	else if (cbuild == woolhelm) proost.set_helm(whelm);
-	else if (cbuild == woollegs) proost.set_legs(wlegs);
-	else if (cbuild == woolboots) proost.set_boots(wboots);
-	else if (cbuild == woolglove) proost.set_weapon(wwep);
+	 //bool craftedarmor[4][5] = { {false,false,false,false,false },{ false,false,false,false,false },{ false,false,false,false,false },{ false,false,false,false,false } };
 
-	else if (cbuild == stonecp) proost.set_chest(scp);
-	else if (cbuild == stonehelm) proost.set_helm(shelm);
-	else if (cbuild == stonelegs) proost.set_legs(slegs);
-	else if (cbuild == stoneboots) proost.set_boots(sboots);
-	else if (cbuild == stoneglove) proost.set_weapon(swep);
+	for (int i = 0; i < 4; i++) {
+		for (int p = 0; p < 5; p++) {
+			if (cbuild == armstr[i][p]) { 
+				success = true;
+				if (p == 4) proost.set_weapon(wequipable[i]);
+				else proost.newarmor(equipable[i][p]); 
+				craftedarmor[i][p] = true;
+			}
+		}
+	}
 
-	else if (cbuild == cauldron) hascauldron = true;
-	else if (cbuild == bed) bedmulti = 2;
-
-	else success = false;
+	if (cbuild == cauldron) { hascauldron = true; success = true; }
+	else if (cbuild == bed) { bedmulti = 2; success = true; }
 
 	return success;
 }
@@ -1127,10 +1152,7 @@ void craft() { //craft tools
 	int intproduct[3][3] = { { 0, 0, 0 },{ 0, 0, 0 },{ 0, 0, 0 } };
 	int temploss[2] = { 0,0 };
 	vector<string> options;
-	if (sheep > 0) {
-		options.push_back("Wool");
-		if (sheep > 0) { options.push_back("Stone"); }
-	} //fix later
+	for (int i = 0; i < craftunlocks; i++) options.push_back(craftmatsname[i]);
 	options.push_back("Craft");
 	options.push_back("Return Home");
 	while (crafting) {
@@ -1166,10 +1188,10 @@ void craft() { //craft tools
 		for (int i = 0; i < 12; i++) {
 			endproduct[i + 6] += proost.get_icon(i);
 		}
-		endproduct[1] += "Current Helmet: " + proost.helmet.name;
-		endproduct[2] += "Current Chestplate: " + proost.chestplate.name;
-		endproduct[3] += "Current Leggings: " + proost.pants.name;
-		endproduct[4] += "Current Boots: " + proost.boots.name;
+		endproduct[1] += "Current Helmet: " + proost.equipped[0].name;
+		endproduct[2] += "Current Chestplate: " + proost.equipped[1].name;
+		endproduct[3] += "Current Leggings: " + proost.equipped[2].name;
+		endproduct[4] += "Current Boots: " + proost.equipped[3].name;
 		endproduct[5] += "Current Weapon: " + proost.weap.name;
 
 		prarrtostr(endproduct, 19);
@@ -1240,11 +1262,78 @@ void checksheep() {
 	string coop[14];
 	for (int i = 0; i < 14; i++) { coop[i] = sheepicon[i]; } //Copy the sheepicon array.
 
+	coop[3] += ("    You have: " + to_string(sheep) + " sheep");
 	coop[4] += ("    You found: " + to_string(woolgain) + " pieces of wool");
 	coop[5] += ("    You have found a total of: " + to_string(totalcraftmats[0]) + " pieces of wool");
 	coop[6] += ("    You currently have: " + to_string(craftmats[0]) + " wool");
 	prarrtostr(coop, 14);
 	sleep(msdelay);
+}
+
+bool checktrue(bool arr[], int len) {
+	for (int i = 0; i < len; i++)if (arr[i] == true) return true;
+	return false;
+}
+
+void wardrobe() {
+	int matind[4] = { 3,11,27,34 };
+	int boxind[4] = { 4,12,28,36 }; //there is a simple equation for this
+	int pind[5] = { 8,13,18,23,28 };
+	string craftable[5][4] = { {"XXX","X X","   "," R " }, { "X X","XXX","XXX"," R " }, { "XXX","X X","X X"," R "}, { "   ","X X","X X"," R "}, { "   ","XXX"," X "," R " } };
+	string material[4] = { "WOOL:","STONE:","IRON:","DIAMOND:" };
+	string graphic[33];
+	for (int i = 0; i < 33; i++) graphic[i] = defward[i];
+	for (int i = 0; i < 4; i++) {
+		if (checktrue(craftedarmor[i], 5)) {
+			graphic[3].replace(matind[i], material[i].size(), material[i]);
+			for (int p = 0; p < 5; p++) {
+				if (craftedarmor[i][p]) {
+					for (int g = 0; g < 4; g++) graphic[7 + g + (p * 5)].replace(boxind[i], 3, craftable[p][g]);
+				}
+			}
+		}
+	}
+	int pos[2] = { 21,6 };
+	int qualityindexes[] = { 5,13,29,37 }; //there is an equation
+	int quality;
+	//11, 16, 21, 26, 31
+	while (1) {
+		movement(graphic, 33, pos);
+		if (pos[1] == 1) break;
+		else {
+			for (int i = 0; i < 4; i++) if (qualityindexes[i] == pos[0]) quality = i; 
+			if (pos[1] == 30)  proost.set_weapon(wequipable[quality]);
+			else proost.newarmor(equipable[quality][(pos[1] - 5) / 5]);
+			cout << "                Equipped" << endl; //add sound here
+			sleep(500);
+		}
+	}
+}
+
+void enterhouse() {
+	vector<string> options;
+	int intchoice;
+	string choice;
+	while (1) {
+		clear();
+		prarrtostr(insidehouse, 23);
+
+		options.clear();
+		if (hlvl > 0) options.push_back("Craft");
+		if (hlvl > 1) options.push_back("Alchemy");
+		options.push_back("Wardrobe");
+		options.push_back("Leave House");
+
+		cout << buttons(options);
+
+		intchoice = getinput(options.size(), 0);
+		choice = options.at(intchoice - 1);
+		
+		if (choice == "Leave House") break;
+		else if (choice == "Craft")  craft(); 
+		else if (choice == "Alchemy")  alchemy(); 
+		else if (choice == "Wardrobe") wardrobe();
+	}
 }
 
 void game() {
@@ -1256,6 +1345,7 @@ void game() {
 	bool playing = true;
 	while (playing) {
 		if (playmusic  && stickym) PlayLoop(L"Robin-Hood-Rooster.wav");
+		stickym = true;
 		intchoice = 0;
 		clear();
 
@@ -1266,8 +1356,7 @@ void game() {
 		if (cookedchicken >= 3) options.push_back("Sell Cooked Chicken");
 		if (cash >= 5) options.push_back("Go To Store");
 		if (map) options.push_back("View Map");
-		if (hlvl > 0) options.push_back("Craft");
-		if (hlvl > 1) options.push_back("Alchemy");
+		if (housekey) options.push_back("Enter House");
 
 		string finishbarn[houselength];
 		for (int i = 0; i < houselength; i++) { finishbarn[i] = houses[hlvl][i]; } //Copy the house array.
@@ -1281,8 +1370,6 @@ void game() {
 
 		prarrtostr(finishbarn, houselength);
 		cout << buttons(options);
-		sleep(100);
-
 
 		intchoice = getinput(options.size(), 0);
 		choice = options.at(intchoice - 1);
@@ -1292,15 +1379,13 @@ void game() {
 
 		else if (choice == "Cook Chicken") { cookchicken(); stickym = false; }
 
-		else if (choice == "Sell Cooked Chicken") { sellchickens(); stickym = false; }
+		else if (choice == "Sell Cooked Chicken") { sellchickens(); }
 
-		else if (choice == "Go To Store") { cutmusic(); store(); stickym = true; } //make sure music is not sticky
+		else if (choice == "Go To Store") { cutmusic(); store();} //make sure music is not sticky
 
-		else if (choice == "View Map") { cutmusic(); adventure(); stickym = true; }
+		else if (choice == "View Map") { cutmusic(); adventure();}
 
-		else if (choice == "Craft") { craft(); }
-
-		else if (choice == "Alchemy") { alchemy(); }
+		else if (choice == "Enter House") { cutmusic(); enterhouse();} //make sure music is not sticky
 
 	} //end while
 } //end method 

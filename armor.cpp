@@ -6,10 +6,11 @@ armor::armor() {
 		uplvl = 0;
 	}
 
-armor::armor(string n, int hp) {
+armor::armor(string n, int hp, int slot) {
 		uplvl = 0;
 		name = n;
 		hpboost = hp;
+		this->slot = slot;
 	}
 
 int armor::get_hp() { return hpboost + uplvl; }

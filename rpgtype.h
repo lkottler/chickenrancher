@@ -7,7 +7,7 @@ public:
 	string icon[12];
 	string name;
 	int maxhp, currenthp, atk, def;
-	armor chestplate, helmet, boots, pants;
+	armor equipped[4];
 	weapon weap;
 	int loot;
 
@@ -18,14 +18,17 @@ public:
 	string get_icon(int i);
 	void set_icon(string n[12]);
 
-	void equip(armor c, armor h, armor b, armor p);
+	void equip(armor e[4]);
 	void equipwep(weapon w);
-
+	void newarmor(armor a);
+	/*
 	void set_chest(armor chest);
 	void set_legs(armor legs);
 	void set_boots(armor booties);
 	void set_helm(armor helm);
+	*/
 	void set_weapon(weapon wep);
+
 
 	//functions
 	void heal();
