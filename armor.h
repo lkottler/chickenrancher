@@ -10,9 +10,10 @@ public:
 	int hpboost;
 	int uplvl;
 	int slot;
+	int set;
 
 	armor();
-	armor(string name, int hpboost, int slot);
+	armor(string name, int hpboost, int slot, int set);
 
 	int get_hp();
 };

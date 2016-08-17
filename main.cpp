@@ -22,8 +22,6 @@
 #include <AtlBase.h>
 #include <array>
 #include <conio.h>
-#include <cstring>
-#include <cstdint>
 #pragma comment( lib, "winmm" ) 
 
 //Crafting Materials
@@ -60,7 +58,7 @@ int bottles = 0, hpots = 0;
 
 //initializing stat values
 bool craftedarmor[4][5] = { {false,false,false,false,false },{ false,false,false,false,false },{ false,false,false,false,false },{ false,false,false,false,false } };
-bool hascauldron = false, statbar = false, map = false, hasmazemap = false, hasrooster = false, housekey = true, hastome = false;
+bool hascauldron = false, statbar = false, map = false, hasmazemap = false, hasrooster = false, housekey = true, hastome = false, finishedmaze = false;
 double cash = 0, cprice = 0.50, sheepconception = 0;
 int hens = 1, sheep = 0, totalchickens = 0, chickens = 0, cookedchicken = 0, controlchickens = 0, hlvl = 0, cookinglvl = 1, bedmulti = 1, boatq = 1, dfloor = 0;
 
@@ -73,14 +71,14 @@ string strloot[5] = { "Feather", "Bat Wing", "Bone", "Blood Shard", "Clay" };
 int alchmats[5] = { 0,0,0,0,0 };
 int bossloot[mazefloors] = { 0,0,0 };
 
-armor equipable[4][4] = { { armor("Woolen Hat", 3, 0), armor("Woolen Chestplate", 5, 1), armor("Woolen Leggings", 5, 2), armor("Woolen Boots", 2, 3) }, 
-				          { armor("Stone Helmet", 5, 0), armor("Stone Chestplate", 10, 1), armor("Stone Leggings", 8, 2), armor("Stone Boots", 5, 3) },
-						  { armor("Iron Helmet", 8, 0), armor("Iron Chestplate", 15, 1), armor("Iron Leggings", 13, 2), armor("Iron Boots", 8, 3) },
-						  { armor("Diamond Helmet", 5, 0), armor("Diamond Chestplate", 20, 1), armor("Diamond Leggings", 18, 2), armor("Diamond Boots", 8, 3)}};
+armor equipable[4][4] = { { armor("Woolen Hat", 3, 0, 1), armor("Woolen Chestplate", 5, 1, 1), armor("Woolen Leggings", 5, 2, 1), armor("Woolen Boots", 2, 3, 1) },
+				          { armor("Stone Helmet", 5, 0, 2), armor("Stone Chestplate", 10, 1, 2), armor("Stone Leggings", 8, 2, 2), armor("Stone Boots", 5, 3, 2) },
+						  { armor("Iron Helmet", 8, 0, 3), armor("Iron Chestplate", 15, 1, 3), armor("Iron Leggings", 13, 2, 3), armor("Iron Boots", 8, 3, 3) },
+						  { armor("Diamond Helmet", 5, 0, 4), armor("Diamond Chestplate", 20, 1, 4), armor("Diamond Leggings", 18, 2, 4), armor("Diamond Boots", 8, 3, 4)}};
 weapon wequipable[4] = { weapon("Woolen Gloves", 1), weapon("Stone Fist", 3), weapon("Iron Gauntlet", 5), weapon("Diamond Gloves", 10), };
-rpgtype boss[] = { rpgtype("Massive Bat", bigbat, 18, 18, 3, 1, 1) };
+rpgtype boss[] = { rpgtype("Massive Bat", bigbat, 15, 15, 2, 1, 1),rpgtype("Skeleton Dancers", skeletondancers, 25, 25, 4, 1, 2) };
 rpgtype easyenemies[] = { rpgtype("Bird",ebird, 3, 3, 1, 0, 0), rpgtype("Injured Bird",injuredbird, 3, 2, 2, 0, 0), rpgtype("Bat",bat, 2, 2, 2, 0, 1), rpgtype("Bleeding Bat",bleedingbat, 2, 1, 3, 0, 1) };
-rpgtype dungeonpool[] = { rpgtype("Bat", bat, 2, 2, 2, 0, 1), rpgtype("Skeleton",ebird, 5, 5, 3, 0, 2),  rpgtype("Vampire", ebird, 10, 10, 4, 1, 3), rpgtype("Golem", ebird, 3, 3, 8, 5, 4) };
+rpgtype dungeonpool[] = { rpgtype("Bat", bat, 2, 2, 2, 0, 1), rpgtype("Skeleton",skeletonicon, 6, 6, 3, 0, 2),  rpgtype("Vampire", ebird, 10, 10, 4, 1, 3), rpgtype("Golem", ebird, 8, 8, 8, 5, 4) };
 
 clock_t timer;
 
@@ -340,20 +338,20 @@ void changeoptions() {
 	}
 }
 
-bool fight(string background[12]) {
+bool fight(string background[13]) {
 	bool win = false;
 	bool flee = false;
-	string final[12];
+	string final[13];
 	bool autofight = false;
 	string choice = "Scratch";
 	vector<string> options = { "Scratch","Peck","Flee","Auto Battle" };
-	for (int i = 0; i < 12; i++) {
+	for (int i = 0; i < 13; i++) {
 		final[i] = proost.get_icon(i) + "   " + background[i] + "   " + enemy.get_icon(i);
 	}
 	int finalsize = sizeof(final) / sizeof(final[0]);
 	while (enemy.currenthp > 0 && proost.currenthp > 0) {
 		clear();
-		prarrtostr(final, 12);
+		prarrtostr(final, 13);
 
 		cout << "    hp:" + to_string(proost.currenthp) + "/" + to_string(proost.maxhp)
 			<< string(finalsize - 10, ' ') + "   hp:" + to_string(enemy.currenthp) + "/" + to_string(enemy.maxhp) << endl;
@@ -563,53 +561,36 @@ char createarrows(int dir, string special) {
 	string spaces = "                                         ";
 	int i;
 	string arr[19];
-	if ((dir >> 0) & 1){
-		arr[7] += "        .          ";
-		arr[8] += "      .;;..........     ";
-		arr[9] += "    .;;;;::::A:::::     ";
-		arr[10]+= "     ':;;::::::::::     ";
-		arr[11]+= "       ':          ";
+
+	if ((dir >> 0) & 1) {
+		for (i = 7; i < 12; i++) arr[i] += leftarrow[i - 7];
 	}
 	else { //creates ghost arrow
 		arr[7] += string(19, ' ');
 		arr[11] += string(19, ' ');
 		for (i = 8; i < 11; i++) { arr[i] += string(24, ' '); }
 	}
+
 	if ((dir >> 1) & 1) {
-		arr[0] += "                     .                  ";
-		arr[1] += "                   .:;:.                ";
-		arr[2] += "                 .:;;;;;:.              ";
-		arr[3] += "                   ;;;;;                ";
-		arr[4] += "                   ;;;;;                ";
-		arr[5] += "                   ;;W;;                ";
-		arr[6] += "                   ;;;;;                ";
-		arr[7] += ";;;;;";
+		for (i = 0; i < 8; i++) arr[i] += uparrow[i];
 	}
 	else { //ghost arrow
 		arr[7] += string(5, ' ');
 		for (i = 0; i < 7; i++) { arr[i] += string(40, ' '); }
 	}
+
 	if ((dir >> 3) & 1) {
-		arr[11] += ";;;;;";
-		arr[12] += "                   ;;;;;                ";
-		arr[13] += "                   ;;S;;                ";
-		arr[14] += "                   ;;;;;                ";
-		arr[15] += "                   ;;;;;                ";
-		arr[16] += "                 ..;;;;;..              ";
-		arr[17] += "                  ':::::'               ";
-		arr[18] += "                    ':`                 ";
+		for (i = 11; i < 19; i++) arr[i] += downarrow[i - 11];
 	}
 	else {
 		arr[11] += string(5, ' ');
 		for (i = 12; i < 19; i++) { arr[i] += string(40, ' '); }
 	}
+
 	if ((dir >> 2) & 1) {
-		arr[7] += "           .    ";
-		arr[8] += "...........;;.  ";
-		arr[9] += ":::::D:::::;;;;.";
-		arr[10] += ":::::::::::;;:' ";
-		arr[11] += "           :'   ";
+		for (i = 7; i < 12; i++) arr[i] += rightarrow[i - 7];
 	}
+
 	else {
 		for (i = 7; i < 12; i++) { arr[i] += string(16, ' '); }
 	}
@@ -643,10 +624,10 @@ void movement(string board[], int yelem, int pos[2]) {
 		clear();
 		dir = 0;
 		special = "";
-		if (pos[1] != 0 && (board[pos[1]].at(pos[0] - 1) == ' ' || board[pos[1]].at(pos[0] - 1) == 'R')) dir |= 1 << 0; //l
-		if (pos[0] != 0 && (board[pos[1] - 1].at(pos[0]) == ' ' || board[pos[1] - 1].at(pos[0]) == 'R')) dir |= 1 << 1; //u
-		if (pos[1] != (xelem - 1) && (board[pos[1]].at(pos[0] + 1) == ' ' || board[pos[1]].at(pos[0] + 1) == 'R')) dir |= 1 << 2; //r
-		if (pos[0] != (yelem - 1) && (board[pos[1] + 1].at(pos[0]) == ' ' || board[pos[1] + 1].at(pos[0]) == 'R')) dir |= 1 << 3; //d
+		if (pos[0] != 0 && (board[pos[1]].at(pos[0] - 1) == ' ' || board[pos[1]].at(pos[0] - 1) == 'R')) dir |= 1 << 0; //l
+		if (pos[1] != 0 && (board[pos[1] - 1].at(pos[0]) == ' ' || board[pos[1] - 1].at(pos[0]) == 'R')) dir |= 1 << 1; //u
+		if (pos[0] != (xelem - 1) && (board[pos[1]].at(pos[0] + 1) == ' ' || board[pos[1]].at(pos[0] + 1) == 'R')) dir |= 1 << 2; //r
+		if (pos[1] != (yelem - 1) && (board[pos[1] + 1].at(pos[0]) == ' ' || board[pos[1] + 1].at(pos[0]) == 'R')) dir |= 1 << 3; //d
 		if (board[pos[1]].at(pos[0]) == 'R') special = "Interact";
 
 		temp = board[pos[1]].at(pos[0]);
@@ -663,7 +644,6 @@ void movement(string board[], int yelem, int pos[2]) {
 	}
 	
 }
-
 
 string strmazemap(int index, int dfloor, int x, int y) {
 	string returner = "";
@@ -751,7 +731,7 @@ void blackmarket() {
 	}
 }
 
-void librarymaze() {
+void dungeonmaze() {
 	bool inmaze = true;
 	char encounter = 'e';
 
@@ -1084,6 +1064,34 @@ void forest() {
 	} //end else
 } //end method
 
+void library() {
+	if (!finishedmaze) {
+		string graphic[31];
+		srand((int)time(0));
+		int r1, r2, r3;
+		for (int i = 0; i < 31; i++) graphic[i] = housemaze[i];
+		int pos[2] = { 1,1 };
+		while (1) {
+			movement(graphic, 31, pos);
+			if (pos[1] == 1) break;
+			else if (pos[1] == 29) {
+				finishedmaze = true; break;
+			}
+			else {
+				r1 = rand() % 24 + 1; r2 = rand() % 2; r3 = rand() % 2;
+				cash += r1; alchmats[r2] += r3;
+				cout << "Found $" + r1;
+				if (r3 != 0) cout << " and " + to_string(r3) + " " + strloot[r2];
+				cout << endl;
+				sleep(msdelay / 2);
+			}
+		}
+	}
+	else {
+		cout << "Not sure yet" << endl; sleep(msdelay);
+	}
+}
+
 void adventure() {
 	bool adventuring = true;
 
@@ -1104,12 +1112,13 @@ void adventure() {
 		cin.ignore();
 		transform(input.begin(), input.end(), input.begin(), ::toupper);
 		if (input == "FOREST" || input == "WOODS") forest();
-		else if (input == "DUNGEON" || input == "HOUSE") librarymaze();
+		else if (input == "DUNGEON" || input == "CRYPT") dungeonmaze();
 		else if (input == "BARN" || input == "FARM") oldmcdonald();
 		else if (input == "BOAT" || input == "SAILBOAT") boat();
+		else if (input == "MAZE" || input == "LIBRARY") library();
 		else if (input == "EXIT" || input == "LEAVE" || input == "HOME") adventuring = false;
 		else if (input == "HELP") {
-			cout << "Your options are:\n1. Forest\n2. Dungeon\n3. Boat\n4. Farm\n5. Home\n6. Help" << endl;
+			cout << "Your options are:\n1. Forest\n2. Dungeon\n3. Boat\n4. Farm\n5. Maze\n6. Home\n7. Help" << endl;
 			goto help;
 		}
 		else {
@@ -1192,7 +1201,7 @@ void craft() { //craft tools
 			}
 
 		}
-		for (int i = 0; i < 12; i++) {
+		for (int i = 2; i < 14; i++) {
 			endproduct[i + 6] += proost.get_icon(i);
 		}
 		endproduct[1] += "Current Helmet: " + proost.equipped[0].name;
@@ -1247,8 +1256,8 @@ void alchemy() { //craft potions
 	string choice = "";
 	vector<string> options;
 	string graphic[22];
-
-	memcpy(graphic, wizard, sizeof(wizard));
+	
+	for (int i = 0; i < 22; i++) graphic[i] = wizard[i];
 
 	if (hascauldron) {
 		for (int i = 5; i < 22; i++) graphic[i] += "      " + cauldron[i];

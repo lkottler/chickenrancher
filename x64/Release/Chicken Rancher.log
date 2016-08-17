@@ -1,23 +1,23 @@
-﻿  armor.cpp
-  main.cpp
-main.cpp(324): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(366): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(471): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(616): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(636): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(637): warning C4101: 'i': unreferenced local variable
-main.cpp(717): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(1023): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(1207): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(1246): warning C4101: 'intchoice': unreferenced local variable
-main.cpp(1265): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-main.cpp(1337): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(1383): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(1421): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+﻿  main.cpp
+main.cpp(322): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(364): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(469): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(597): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(617): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(618): warning C4101: 'i': unreferenced local variable
+main.cpp(697): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1003): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1216): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1255): warning C4101: 'intchoice': unreferenced local variable
+main.cpp(1274): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+main.cpp(1346): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1392): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1430): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   rpgtype.cpp
-  weapon.cpp
   Generating code
-  All 950 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  154 of 965 functions (16.0%) were compiled, the rest were copied from previous compilation.
+    4 functions were new in current compilation
+    19 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Chicken Rancher.vcxproj -> C:\DEV\cppVSworkspace\cr\x64\Release\Chicken Rancher.exe
   Chicken Rancher.vcxproj -> C:\DEV\cppVSworkspace\cr\x64\Release\Chicken Rancher.pdb (Full PDB)
