@@ -43,13 +43,6 @@ rpgtype::rpgtype(string name, string icon[12], int maxhp, int currenthp, int atk
 	}
 	void rpgtype::equipwep(weapon w) { atk = w.get_atk() + 1; }
 	void rpgtype::newarmor(armor a) { this->equipped[a.slot] = a; equip(this->equipped); }
-
-	/*
-	void rpgtype::set_chest(armor chest) { chestplate = chest; equip(chestplate, helmet, boots, pants); }
-	void rpgtype::set_legs(armor legs) { pants = legs; equip(chestplate, helmet, boots, pants); }
-	void rpgtype::set_boots(armor booties) { boots = booties; equip(chestplate, helmet, boots, pants); }
-	void rpgtype::set_helm(armor helm) { helmet = helm; equip(chestplate, helmet, boots, pants); }
-	*/
 	void rpgtype::set_weapon(weapon wep) { weap = wep; equipwep(weap); }
 
 

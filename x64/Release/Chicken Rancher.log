@@ -1,24 +1,23 @@
 ﻿  armor.cpp
   main.cpp
-c:\dev\cppvsworkspace\cr\chicken rancher\ascii.h(418): warning C4129: ';': unrecognized character escape sequence
-main.cpp(318): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(360): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(462): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(607): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(627): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(628): warning C4101: 'i': unreferenced local variable
-main.cpp(708): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(1014): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(1200): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(1239): warning C4101: 'intchoice': unreferenced local variable
-main.cpp(1258): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-main.cpp(1329): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(1374): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-main.cpp(1413): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(324): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(366): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(471): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(616): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(636): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(637): warning C4101: 'i': unreferenced local variable
+main.cpp(717): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1023): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1207): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1246): warning C4101: 'intchoice': unreferenced local variable
+main.cpp(1265): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+main.cpp(1337): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1383): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+main.cpp(1421): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   rpgtype.cpp
   weapon.cpp
   Generating code
-  All 951 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 950 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
   Chicken Rancher.vcxproj -> C:\DEV\cppVSworkspace\cr\x64\Release\Chicken Rancher.exe
   Chicken Rancher.vcxproj -> C:\DEV\cppVSworkspace\cr\x64\Release\Chicken Rancher.pdb (Full PDB)

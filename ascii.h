@@ -404,8 +404,8 @@ string sheepicon[] = {
 	"     /_)                  /_)     " }; //14
 
 string penguin[] = {
-	"   Your Penguin  ",
 	"                 ",
+	"   Your Penguin  ",
 	"      .___.      ", //3
 	"     /     \\     ",
 	"    | O _ O |    ",
@@ -415,7 +415,7 @@ string penguin[] = {
 	"(_/ |       | \\_)", //9
 	"    \\       /    ",
 	"   __\\_>-<_/__   ",
-	"   ~;/     \;~   " //12
+	"   ~;/     \\;~   " //12
 };
 
 string boatpeng[20] = {

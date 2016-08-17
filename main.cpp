@@ -59,7 +59,7 @@ rpgtype proost, enemy;
 int bottles = 0, hpots = 0;
 
 //initializing stat values
-bool craftedarmor[4][5] = { {false,false,false,false,false },{ false,false,false,false,false },{ false,false,true,false,false },{ false,false,false,false,false } };
+bool craftedarmor[4][5] = { {false,false,false,false,false },{ false,false,false,false,false },{ false,false,false,false,false },{ false,false,false,false,false } };
 bool hascauldron = false, statbar = false, map = false, hasmazemap = false, hasrooster = false, housekey = true, hastome = false;
 double cash = 0, cprice = 0.50, sheepconception = 0;
 int hens = 1, sheep = 0, totalchickens = 0, chickens = 0, cookedchicken = 0, controlchickens = 0, hlvl = 0, cookinglvl = 1, bedmulti = 1, boatq = 1, dfloor = 0;
@@ -72,8 +72,6 @@ int totalcraftmats[2] = { 0,0 };
 string strloot[5] = { "Feather", "Bat Wing", "Bone", "Blood Shard", "Clay" };
 int alchmats[5] = { 0,0,0,0,0 };
 int bossloot[mazefloors] = { 0,0,0 };
-
-// string strloot[5] = { "Feather", "Bat Wing", "Bone", "Blood Shard", "Clay" };
 
 armor equipable[4][4] = { { armor("Woolen Hat", 3, 0), armor("Woolen Chestplate", 5, 1), armor("Woolen Leggings", 5, 2), armor("Woolen Boots", 2, 3) }, 
 				          { armor("Stone Helmet", 5, 0), armor("Stone Chestplate", 10, 1), armor("Stone Leggings", 8, 2), armor("Stone Boots", 5, 3) },
@@ -124,31 +122,36 @@ int getinput(int max, int min) {
 
 	while (true) {
 		if (max > 9) {
-			cin >> intchoice;
-			if (cin.fail()) {
-				cin.clear();
-				cin.sync();
+			while (1) {
+				cin >> intchoice;
+				if (cin.fail()) {
+					cin.clear();
+					cin.ignore(256, '\n');
+				}
+				else break;
 			}
 		}
 		else intchoice = _getch() - '0';
 		
 		if (intchoice == max + 1) {
 			cout << "Enter Cheat: ";
-			FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-			cin.sync();
 			getline(cin, stringput);
 			if (stringput == "chicken overwhelming") {
 				chickens += 10000; totalchickens += 10000;
 				cout << "Check your coop :)" << endl;
 				PlaySoundBite(L"secret.wav");
 			}
-			else if (stringput == "reduce delay") {
-				if (msdelay >= 1000) msdelay -= 500;
-			}
+			else if (stringput == "reduce delay") { if (msdelay >= 500) msdelay -= 500; }
+			
 			else if (stringput == "wake me up inside") {
 				proost.currenthp = proost.maxhp;
 				cout << "Full heal!" << endl;
 				PlaySoundBite(L"wmu.wav");
+			}
+
+			else if (stringput == "enter the gauntlet") {
+				cout << "Diamond Gauntlet Unlocked" << endl;
+				craftedarmor[3][4] = true;
 			}
 			else { cout << "\nNot Recognized / Input too fast" << endl;
 				cin.clear();
@@ -160,6 +163,10 @@ int getinput(int max, int min) {
 		cin.clear();
 		if (max > 9) {
 			cin >> intchoice;
+			if (cin.fail()) {
+				cin.clear();
+				cin.ignore(256, '\n');
+			}
 		}
 		else intchoice = _getch() - '0';
 	} // end while
@@ -186,7 +193,6 @@ void clear() { system("cls");
 if (statbar) {
 	string stats;
 	stats += "HP: " + to_string(proost.currenthp) + "/" + to_string(proost.maxhp) + " DMG: " + to_string(proost.atk) + " DEF: " + to_string(proost.def) + "\n";
-	stats += "Money: " + dbltostr(cash);
 	cout << stats << endl;
 	}
 }
@@ -236,6 +242,7 @@ void createnemy(rpgtype en) {
 	enemy.currenthp = en.currenthp;
 	enemy.atk = en.atk;
 	enemy.def = en.def;
+	enemy.loot = en.loot;
 }
 
 void death() {
@@ -312,13 +319,12 @@ void changeoptions() {
 	clear();
 	prarrtostr(optionsicon, 8);
 	vector<string> options = { "Change Delay", "Toggle Music", "Toggle Sound", "Return" };
-
 	cout << buttons(options);
 	while (1) {
 		int intput = getinput(options.size(), 0);
 		string choice = options.at(intput - 1);
 		if (choice == "Change Delay") {
-			cout << "Enter the millisecond delay you would like between actions: (max 10000) ";
+			cout << "Enter the millisecond delay you would like between actions: (max 10000)\nCurrent Delay: " + to_string(msdelay) + "\n";
 			msdelay = getinput(10000, 0);
 			cout << "Delay is now: " + to_string(msdelay) + " milliseconds" << endl;
 		}
@@ -390,8 +396,10 @@ bool fight(string background[12]) {
 		cash = 0;
 	}
 	else if (!flee) {
-		cout << "Gained 1: " + strloot[enemy.loot] << endl;
-		alchmats[enemy.loot]++;
+		if (enemy.loot != -1) {
+			cout << "Gained 1: " + strloot[enemy.loot] << endl;
+			alchmats[enemy.loot]++;
+		}
 		win = true;
 	}
 	return win;
@@ -452,7 +460,8 @@ void store() {
 		options.clear();
 		options.push_back("Hen $" + strhenprice);
 		options.push_back("Cooking Manual $" + strmanualprice);
-		if (cash >= 75 && !map) options.push_back("Map $15");
+		if (cash >= 10 && !map) options.push_back("Map $15");
+		else if (!map) options.push_back("New Item Coming!");
 		if (hasrooster && hlvl < 2) options.push_back("Upgrade House $" + strhouseprice);
 		if (hascauldron) options.push_back("Witch's Tome $10000");
 
@@ -483,9 +492,9 @@ void store() {
 			}
 		}
 		else if (choice == "Map $15") {
-			if (cash < 100)  PlaySoundBite(L"bargain.wav"); 
+			if (cash < 15)  PlaySoundBite(L"bargain.wav"); 
 			else {
-				cash -= 100;
+				cash -= 15;
 				map = true;
 			}
 		}
@@ -912,8 +921,8 @@ void boat() {
 
 	string intro = "Hello and welcome to my boat!\nI hope you will be able to answer some questions for me.  I will reward you if you are correct!";
 	string q1 = "First Question: Do you really love penguins?";
-	string q2 = "What side of a chicken has the most feathers?";
-	string q3 = "Complete this sequence: R, E, T, S, E, H, ?";
+	string q2 = "Complete this sequence: R, E, T, S, E, H, ?";
+	string q3 = "What side of a chicken has the most feathers?";
 	string q4 = "How many chickens does the best rancher in town have?";
 	string q5 = "Who created this program?";
 	clear();
@@ -931,7 +940,7 @@ void boat() {
 				break;
 			case 2:
 				talking(q2);
-				boating = questioncheck("outside");
+				boating = questioncheck("c");
 				if (!boating) break;
 				boatq++;
 				talking("Right answer! here are 50 monies.");
@@ -939,10 +948,10 @@ void boat() {
 				break;
 			case 3:
 				talking(q3);
-				boating = questioncheck("c");
+				boating = questioncheck("outside");
 				if (!boating) break;
 				boatq++;
-				talking("You got it! it was my name. Here are two stones!");
+				talking("You got it! It was my name. Here are two stones!");
 				craftmats[1] += 2;
 				break;
 			case 4:
@@ -950,7 +959,7 @@ void boat() {
 				boating = questioncheck(to_string(chickens));
 				if (!boating) break;
 				boatq++;
-				talking("I was talking about you! Here are 3000 chickens, and a map!");
+				talking("I was talking about you! Here are 3000 chickens, and a map to the dungeon!");
 				chickens += 3000;
 				hasmazemap = true;
 				break;
@@ -971,7 +980,7 @@ void boat() {
 				}
 				else {
 					talking("You've answered all my questions!");
-					sleep(200);
+					sleep(msdelay / 2);
 					boating = false;
 				}
 			}
@@ -1066,7 +1075,7 @@ void forest() {
 			if (win) {
 				cout << "You gained: 12$" << endl;
 				cash += 12;
-				sleep(msdelay);
+				sleep(msdelay / 2);
 			}
 			else {
 				fighting = false;
@@ -1095,12 +1104,12 @@ void adventure() {
 		cin.ignore();
 		transform(input.begin(), input.end(), input.begin(), ::toupper);
 		if (input == "FOREST" || input == "WOODS") forest();
-		else if (input == "HOUSE" || input == "HUT") librarymaze();
+		else if (input == "DUNGEON" || input == "HOUSE") librarymaze();
 		else if (input == "BARN" || input == "FARM") oldmcdonald();
 		else if (input == "BOAT" || input == "SAILBOAT") boat();
 		else if (input == "EXIT" || input == "LEAVE" || input == "HOME") adventuring = false;
 		else if (input == "HELP") {
-			cout << "Your options are:\n1. Forest\n2. House\n3. Boat\n4. Farm\n5. Home\n6. Help" << endl;
+			cout << "Your options are:\n1. Forest\n2. Dungeon\n3. Boat\n4. Farm\n5. Home\n6. Help" << endl;
 			goto help;
 		}
 		else {
@@ -1124,8 +1133,6 @@ bool checkcraft(int arr[3][3]) {
 
 	string cauldron = "000202222";
 	string bed = "000111202";
-
-	 //bool craftedarmor[4][5] = { {false,false,false,false,false },{ false,false,false,false,false },{ false,false,false,false,false },{ false,false,false,false,false } };
 
 	for (int i = 0; i < 4; i++) {
 		for (int p = 0; p < 5; p++) {
@@ -1322,6 +1329,7 @@ void enterhouse() {
 		if (hlvl > 0) options.push_back("Craft");
 		if (hlvl > 1) options.push_back("Alchemy");
 		options.push_back("Wardrobe");
+		options.push_back("Change Options");
 		options.push_back("Leave House");
 
 		cout << buttons(options);
@@ -1331,6 +1339,7 @@ void enterhouse() {
 		
 		if (choice == "Leave House") break;
 		else if (choice == "Craft")  craft(); 
+		else if (choice == "Change Options") changeoptions();
 		else if (choice == "Alchemy")  alchemy(); 
 		else if (choice == "Wardrobe") wardrobe();
 	}
@@ -1392,14 +1401,13 @@ void game() {
 
 
 int main(int argc, char* argv[]){
-	cout << "This is a virus.\n\nJust Kidding!\n\nPlease take a second to resize the cmd window!\nMade by: You know :)\nSound: Disabled" << endl;
+	cout << "This is a virus.\n\nJust Kidding!\n\nPlease take a second to resize the cmd window!\nMade by: You know :)\nSound: Disabled\nTip: Fleeing results in damage taken." << endl;
 	for (int j = 0; j < mazefloors; j++){ //initialize map of maze at beginning of program
 		for (int i = 0; i < 49; i++) {
 			mazemap[j][i / 7][i % 7] = '?';
 		}
 	}
 	mazemap[0][6][3] = 'e';
-
 	system("pause");
 	bool playing = true;
 	vector<string> options = { "New Game","Options","Exit" };
@@ -1413,9 +1421,7 @@ int main(int argc, char* argv[]){
 		int intput = getinput(options.size(), 0);
 		string choice = options.at(intput - 1);
 		if (choice == "New Game") game();
-		else if (choice == "Options") {
-			changeoptions();
-		}
+		else if (choice == "Options") changeoptions();
 		else if (choice == "Exit") playing = false;
 	} //end while
 }

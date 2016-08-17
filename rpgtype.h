@@ -21,12 +21,6 @@ public:
 	void equip(armor e[4]);
 	void equipwep(weapon w);
 	void newarmor(armor a);
-	/*
-	void set_chest(armor chest);
-	void set_legs(armor legs);
-	void set_boots(armor booties);
-	void set_helm(armor helm);
-	*/
 	void set_weapon(weapon wep);
 
 
