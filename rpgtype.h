@@ -4,7 +4,7 @@
 
 class rpgtype {
 public:
-	string icon[14];
+	string icon[17];
 	string name;
 	int maxhp, currenthp, atk, def;
 	armor equipped[4];
@@ -13,10 +13,10 @@ public:
 
 	//constructors
 	rpgtype();
-	rpgtype(string name, string icon[14], int maxhp, int currenthp, int atk, int def, int loot);
+	rpgtype(string name, string icon[17], int maxhp, int currenthp, int atk, int def, int loot);
 
 	string get_icon(int i);
-	void set_icon(string n[14]);
+	void set_icon(string n[17]);
 
 	void equip(armor e[4], armor a);
 	void equipwep(weapon w);

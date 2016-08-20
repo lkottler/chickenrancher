@@ -39,13 +39,38 @@ char mazegrid[mazefloors][7][7] = {
 							{ '1','0','1','1','1','1','j' },
 							{ 'm','0','0','e','0','1','b' } },
 
-						  { { 'c','1','0','0','m','0','0' },
-							{ '0','1','0','1','1','c','m' },
-							{ '0','1','0','m','1','1','1' },
-							{ '0','1','1','0','1','s','0' },
-							{ '0','0','0','0','m','0','0' },
-							{ '1','0','1','1','1','1','j' },
-							{ 'm','0','0','0','0','1','u' } },
+						  { { 'c','m','0','1','0','0','0' },
+							{ 'm','1','0','1','1','0','0' },
+							{ '0','0','m','m','m','0','0' },
+							{ '1','1','m','b','m','0','0' },
+							{ '0','1','m','m','m','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','u' } },
+
+						  { { '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' } },
+							/*
+						  { { '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' } },
+
+						  { { '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' },
+							{ '0','0','0','0','0','0','0' } },
+							*/
 };
 
 //non-user controlled bools
@@ -58,7 +83,7 @@ int bottles = 0, hpots = 0;
 
 //initializing stat values
 bool craftedarmor[4][5] = { {false,false,false,false,false },{ false,false,false,false,false },{ false,false,false,false,false },{ false,false,false,false,false } };
-bool hascauldron = false, statbar = false, map = false, hasmazemap = false, hasrooster = false, housekey = true, hastome = false, finishedmaze = false;
+bool hascauldron = false, statbar = false, map = false, hasmazemap = false, hasrooster = false, housekey = false, hastome = false;
 double cash = 0, cprice = 0.50, sheepconception = 0;
 int hens = 1, sheep = 0, totalchickens = 0, chickens = 0, cookedchicken = 0, controlchickens = 0, hlvl = 0, cookinglvl = 1, bedmulti = 1, boatq = 1, dfloor = 0;
 
@@ -76,7 +101,7 @@ armor equipable[4][4] = { { armor("Woolen Hat", 3, 0, 1), armor("Woolen Chestpla
 						  { armor("Iron Helmet", 8, 0, 3), armor("Iron Chestplate", 15, 1, 3), armor("Iron Leggings", 13, 2, 3), armor("Iron Boots", 8, 3, 3) },
 						  { armor("Diamond Helmet", 5, 0, 4), armor("Diamond Chestplate", 20, 1, 4), armor("Diamond Leggings", 18, 2, 4), armor("Diamond Boots", 8, 3, 4)}};
 weapon wequipable[4] = { weapon("Woolen Gloves", 1), weapon("Stone Fist", 3), weapon("Iron Gauntlet", 5), weapon("Diamond Gloves", 10), };
-rpgtype boss[] = { rpgtype("Massive Bat", bigbat, 15, 15, 2, 1, 1),rpgtype("Skeleton Dancers", skeletondancers, 25, 25, 4, 1, 2) };
+rpgtype boss[] = { rpgtype("Massive Bat", bigbat, 15, 15, 2, 1, 1),rpgtype("Skeleton Dancers", skeletondancers, 25, 25, 4, 1, 2),rpgtype("Grim Reaper", reaperenemy, 25, 25, 4, 1, 2) };
 rpgtype easyenemies[] = { rpgtype("Bird",ebird, 3, 3, 1, 0, 0), rpgtype("Injured Bird",injuredbird, 3, 2, 2, 0, 0), rpgtype("Bat",bat, 2, 2, 2, 0, 1), rpgtype("Bleeding Bat",bleedingbat, 2, 1, 3, 0, 1) };
 rpgtype dungeonpool[] = { rpgtype("Bat", bat, 2, 2, 2, 0, 1), rpgtype("Skeleton",skeletonicon, 6, 6, 3, 0, 2),  rpgtype("Vampire", ebird, 10, 10, 4, 1, 3), rpgtype("Golem", ebird, 8, 8, 8, 5, 4) };
 
@@ -338,20 +363,20 @@ void changeoptions() {
 	}
 }
 
-bool fight(string background[13]) {
+bool fight(string background[17]) {
 	bool win = false;
 	bool flee = false;
-	string final[13];
+	string final[17];
 	bool autofight = false;
 	string choice = "Scratch";
 	vector<string> options = { "Scratch","Peck","Flee","Auto Battle" };
-	for (int i = 0; i < 13; i++) {
+	for (int i = 0; i < 17; i++) {
 		final[i] = proost.get_icon(i) + "   " + background[i] + "   " + enemy.get_icon(i);
 	}
 	int finalsize = sizeof(final) / sizeof(final[0]);
 	while (enemy.currenthp > 0 && proost.currenthp > 0) {
 		clear();
-		prarrtostr(final, 13);
+		prarrtostr(final, 17);
 
 		cout << "    hp:" + to_string(proost.currenthp) + "/" + to_string(proost.maxhp)
 			<< string(finalsize - 10, ' ') + "   hp:" + to_string(enemy.currenthp) + "/" + to_string(enemy.maxhp) << endl;
@@ -1065,7 +1090,7 @@ void forest() {
 } //end method
 
 void library() {
-	if (!finishedmaze) {
+	if (!housekey) {
 		string graphic[31];
 		srand((int)time(0));
 		int r1, r2, r3;
@@ -1075,15 +1100,17 @@ void library() {
 			movement(graphic, 31, pos);
 			if (pos[1] == 1) break;
 			else if (pos[1] == 29) {
-				finishedmaze = true; break;
+				housekey = true; break;
 			}
 			else {
-				r1 = rand() % 24 + 1; r2 = rand() % 2; r3 = rand() % 2;
+				r1 = rand() % 24 + 1; r2 = rand() % 100 / 45; r3 = rand() % 3;
 				cash += r1; alchmats[r2] += r3;
-				cout << "Found $" + r1;
+				cout << "\n\n               Found $" + to_string(r1);
 				if (r3 != 0) cout << " and " + to_string(r3) + " " + strloot[r2];
 				cout << endl;
-				sleep(msdelay / 2);
+				sleep(500);
+				graphic[pos[1]].replace(pos[0], 1, " ");
+				housemaze[pos[1]].replace(pos[0], 1, " ");
 			}
 		}
 	}
