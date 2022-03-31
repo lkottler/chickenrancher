@@ -19,7 +19,7 @@
 #include <MMSystem.h>
 #include <fstream>
 #include <direct.h>
-#include <AtlBase.h>
+//#include <AtlBase.h>
 #include <array>
 #include <conio.h>
 #pragma comment( lib, "winmm" ) 
@@ -112,7 +112,7 @@ using namespace std;
 
 WCHAR combined[MAX_PATH];
 
-bool sound = false;
+bool sound = true;
 wstring folder = L"soundbites\\";
 
 void PlaySoundBite(LPTSTR file) {
@@ -1437,7 +1437,7 @@ void game() {
 
 
 int main(int argc, char* argv[]){
-	cout << "This is a virus.\n\nJust Kidding!\n\nPlease take a second to resize the cmd window!\nMade by: You know :)\nSound: Disabled\nTip: Fleeing results in damage taken." << endl;
+	cout << "This is a virus.\n\nJust Kidding!\n\nPlease take a second to resize the cmd window!\nMade by: You know :)\nSound: Enabled\nTip: Fleeing results in damage taken." << endl;
 	for (int j = 0; j < mazefloors; j++){ //initialize map of maze at beginning of program
 		for (int i = 0; i < 49; i++) {
 			mazemap[j][i / 7][i % 7] = '?';
